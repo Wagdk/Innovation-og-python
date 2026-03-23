@@ -1,2 +1,2 @@
-# IT sikkerhed
+# Innovation og python
 Vores projekt
