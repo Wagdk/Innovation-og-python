@@ -4,9 +4,21 @@ import pygame
 import os
 import sys
 
-
-
 pygame.init()
+
+sqheight, sqwidth, posx, posy = 50, 100, 300, 300
+
+
+def start_screen():
+    screen.fill((128,0,55))
+    pygame.draw.polygon(screen,(0,255,0),([sqheight+posx,sqwidth+posy],[sqheight+posx,posy],[posx,posy],[posx,sqwidth+posy]))
+
+
+
+
+
+
+
 
 WIDTH, HEIGHT = 1200, 600 # Bredde og højde på pygamevinduet (screen)
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -21,9 +33,14 @@ while running: # Hovedspil-loop
         if event.type == pygame.QUIT:
             running = False
 
-    # Tegn baggrund og cirkel
-    screen.fill(WHITE) # henter info om baggrundsfarven fra variablen WHITE
-    pygame.draw.circle(screen, (255,0,0) , (50, 50), 25)
+    
+    start_screen()
+
+
+
+
+
+
 
 
     # Opdater skærmen
