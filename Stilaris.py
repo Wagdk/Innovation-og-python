@@ -26,11 +26,12 @@ def start_screen():
 
 
 class Ball:
-    def __init__(self, radius, pos, color, player):
+    def __init__(self, radius, pos, color, player, selected):
         self.radius = radius
         self.pos = list(pos)
         self.color = color
         self.player = player
+        self.selected = selected
 
 
     def img(self):
@@ -41,22 +42,31 @@ class Ball:
         self.pos[1] += dy
 
 
+class keypress:
+    def __init__(self, pressed):
+        self.pressed = pressed
+
+
+
+
 
 players = []
 def make_players(amount, color, radius, player):
+    playertemp = []
     for i in range(amount):
-        players.append(Ball(radius, (random.randint(radius, WIDTH - radius), random.randint(radius, HEIGHT - radius)), color, player))
+        playertemp.append(Ball(radius, (random.randint(radius, WIDTH - radius), random.randint(radius, HEIGHT - radius)), color, player, False))
+    players.append(playertemp)
 
 
 make_players(10, (255, 255, 255), 15, "p1")
 make_players(20, (255, 0, 255), 15, "p2")
 
-bal1 = Ball(15, (100, 100), (0, 255, 0), "p1")
-bal2 = Ball(20, (200, 100), (255, 0, 0), "p2")
+#bal1 = Ball(15, (100, 100), (0, 255, 0), "p1", False)
+#bal2 = Ball(20, (200, 100), (255, 0, 0), "p2", False)
 
 
-
-
+sup1 = 0
+sup2 = 0
 
 
 
@@ -71,7 +81,26 @@ while running: # Hovedspil-loop
 
     #keyboard detection
     keys = pygame.key.get_pressed()
-    pygame.
+    
+
+    
+
+    #player 1
+    if keys[pygame.K_q]:
+        players[0][sup1].selected = False   #sets the current to not selected
+        sup1 -= 1                           #decrements by 1
+        if sup1 < 1:                        #Checks whether sup1 overflows and resets if so
+            sup1 = 0
+        players[0][sup1].selected = True    #Sets the new unit to selected
+
+
+
+    if keys[pygame.K_e]:
+        players[0][sup1].selected = False   #sets the current to not selected
+        sup1 += 1                           #increments by 1
+        if sup1 > len(players[0]):          #Checks whether sup1 overflows and resets if so
+            sup1 = 0
+        players[0][sup1].selected = True    #Sets the new unit to selected
 
 
 
@@ -88,8 +117,9 @@ while running: # Hovedspil-loop
 
 
     #Renders the balls
-    for i in players:
-        i.img()
+    for p in players:
+        for unit in p:
+            unit.img()
 
     # Opdater skærmen
     pygame.display.flip() # Hver gang man flytter cirklen, opdateres skærmen så den viser den nye position
