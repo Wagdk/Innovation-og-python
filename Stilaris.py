@@ -54,6 +54,22 @@ class Ball:
         self.pos[1] += dy
 
 
+class mouse:
+    def __init__(self, posx, posy, player, color, selecting, unit_move, rendered, points):
+        self.posx = posx
+        self.posy = posy
+        self.player = player
+        self.color = color
+        self.selecting = selecting
+        self.unit_move = unit_move
+        self.rendered = rendered
+        self.points = points
+    
+    def move(self, dx, dy):
+        self.posx += dx
+        self.posy += dy
+
+
 
 
 
@@ -81,6 +97,21 @@ def highlight(player, basecolor, light_color, increment):
         units[player.index][player.selunit].selected = True        #Sets the new unit to selected
         units[player.index][player.selunit].color = light_color     #Returns the original color
 
+def select(player, basecolor, light_color):
+    global units
+    for i in units[player]:
+        if min(cursers[player].points[0], cursers[player].points[2]) < i.pos[0] and max(cursers[player].points[0], cursers[player].points[2]) > i.pos[0] and min(cursers[player].points[1], cursers[player].points[3]) < i.pos[1] and max(cursers[player].points[1], cursers[player].points[3]) > i.pos[1]:
+            i.color = light_color
+            i.selected = True
+
+
+        else:    
+            i.color = basecolor
+            i.selected = False
+
+
+
+
 
 
 
@@ -95,8 +126,10 @@ make_units(20, GREEN, 15, p2.index, 600, 10, 690, 600)
 #bal1 = Ball(15, (100, 100), (0, 255, 0), "p1", False)
 #bal2 = Ball(20, (200, 100), (255, 0, 0), "p2", False)
 
-
-
+cursers = [
+    mouse(100, 100, 0, (255, 255, 255), False, False, True, [False, False, False, False]), 
+    mouse(200, 100, 1, (200, 100, 255), False, False, True, [False, False, False, False])
+        ]
 
 
 
@@ -112,21 +145,33 @@ while running: # Hovedspil-loop
         #keyboard single-press detection
         if event.type == pygame.KEYDOWN:
 
+            #Player 1
             if event.key == pygame.K_q:
-                highlight(p1, BLUE, LIGHT_BLUE, False)
-                
+                cursers[p1.index].selecting = True
+                cursers[p1.index].points[0] = cursers[p1.index].posx
+                cursers[p1.index].points[1] = cursers[p1.index].posy
+                print(cursers[p1.index].points[0],cursers[p1.index].points[1])
 
-            if event.key == pygame.K_e:
-                highlight(p1, BLUE, LIGHT_BLUE, True)       
-                
-    
+            
+            #Player 2
             if event.key == pygame.K_y:
-                highlight(p2, GREEN, LIGHT_GREEN, False)
-                
+                pass
 
-            if event.key == pygame.K_i:
-                highlight(p2, GREEN, LIGHT_GREEN, True)    
+    
+        if event.type == pygame.KEYUP:
+            
+            #Player 1
+            if event.key == pygame.K_q:
+                cursers[p1.index].selecting = False
+                cursers[p1.index].points[2] = cursers[p1.index].posx
+                cursers[p1.index].points[3] = cursers[p1.index].posy
+                print(cursers[p1.index].points[2],cursers[p1.index].points[3])
+                select(0, BLUE, LIGHT_BLUE)
+            
 
+            #Player 2
+            if event.key == pygame.K_y:
+                pass
 
 
 
@@ -139,7 +184,37 @@ while running: # Hovedspil-loop
     
 
     #player 1
-    #if keys[pygame.K_q]:
+    if keys[pygame.K_w]:
+        cursers[p1.index].move(0, -2)
+
+    if keys[pygame.K_s]:
+        cursers[p1.index].move(0, 2)
+    
+    if keys[pygame.K_a]:
+        cursers[p1.index].move(-2, 0)
+    
+    if keys[pygame.K_d]:
+        cursers[p1.index].move(2, 0)
+    
+
+
+    if keys[pygame.K_e]:
+        pass
+
+
+
+    #player 2
+    if keys[pygame.K_u]:
+        cursers[p2.index].move(0, -2)
+
+    if keys[pygame.K_j]:
+        cursers[p2.index].move(0, 2)
+    
+    if keys[pygame.K_h]:
+        cursers[p2.index].move(-2, 0)
+    
+    if keys[pygame.K_k]:
+        cursers[p2.index].move(2, 0)
 
 
 
@@ -156,10 +231,15 @@ while running: # Hovedspil-loop
 
 
 
-    #Renders the units
+
+    #Rendering
     for p in units:
         for unit in p:
             unit.img()
+
+    for i in cursers:
+        pygame.draw.circle(screen, i.color , (i.posx, i.posy), 5)
+
 
     # Opdater skærmen
     pygame.display.flip() # Hver gang man flytter cirklen, opdateres skærmen så den viser den nye position
