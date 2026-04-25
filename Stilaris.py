@@ -10,7 +10,7 @@ pygame.init()
 
 
 
-
+move_speed = 0.5
 WIDTH, HEIGHT = 1200, 600 # Bredde og højde på pygamevinduet (screen)
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Stilaris")
@@ -31,19 +31,21 @@ def start_screen():
 
 
 class Player:
-    def __init__(self, index, status, selunit):
+    def __init__(self, index, status, selunit, repositioning):
         self.index = index
         self.status = status
         self.selunit = selunit
+        self.repositioning = repositioning
 
 
 class Ball:
-    def __init__(self, radius, pos, color, player, selected):
+    def __init__(self, radius, pos, color, player, selected, gotopos):
         self.radius = radius
         self.pos = list(pos)
         self.color = color
         self.player = player
         self.selected = selected
+        self.gotopos = list(gotopos)
 
 
     def img(self):
@@ -77,25 +79,12 @@ units = []
 def make_units(amount, color, radius, player, x1, y1, x2, y2):
     unittemp = []
     for i in range(amount):
-        unittemp.append(Ball(radius, (random.randint(radius + min(x1,x2), max(x1,x2) - radius), random.randint(radius + min(y1,y2), max(y1,y2) - radius)), color, player, False))
+        unittemp.append(Ball(radius, (random.randint(radius + min(x1,x2), max(x1,x2) - radius), random.randint(radius + min(y1,y2), max(y1,y2) - radius)), color, player, False, (False, False)))
     units.append(unittemp)
-
-
-def highlight(player, basecolor, light_color, increment):
-        units[player.index][player.selunit].selected = False       #sets the current to not selected
-        units[player.index][player.selunit].color = basecolor           #Returns the original color
-        
-        if increment == False:
-            player.selunit -= 1                                    #decrements by 1
-            if player.selunit < 0:                                 #Checks whether sup1 overflows and resets if so
-                player.selunit = len(units[player.index]) - 1
-        else:
-            player.selunit += 1                                    #increments by 1
-            if player.selunit > len(units[player.index]) - 1:                 #Checks whether sup1 overflows and resets if so
-                player.selunit = 0
-
-        units[player.index][player.selunit].selected = True        #Sets the new unit to selected
-        units[player.index][player.selunit].color = light_color     #Returns the original color
+    for p in units:
+        for unit in p:
+            unit.gotopos[0] = unit.pos[0]
+            unit.gotopos[1] = unit.pos[1]
 
 def select(player, basecolor, light_color):
     global units
@@ -109,6 +98,15 @@ def select(player, basecolor, light_color):
             i.color = basecolor
             i.selected = False
 
+def globalmove():
+    global move_speed
+    for p in units:
+        for unit in p:
+            if (unit.pos[1] - unit.gotopos[1]) != -(unit.pos[0] - unit.gotopos[0]) and (unit.pos[0] - unit.gotopos[0]) != 0 and (unit.pos[1] - unit.gotopos[1]) != 0 and not unit.selected and not(unit.gotopos[0] < unit.pos[0] + 5 and unit.gotopos[0] > unit.pos[0] - 5 and unit.gotopos[1] < unit.pos[1] + 5 and unit.gotopos[1] > unit.pos[1] - 5):
+                unit.move(-(abs((unit.pos[0] - unit.gotopos[0]))/(unit.pos[0] - unit.gotopos[0])) * min(abs(move_speed / (1 + (unit.pos[1] - unit.gotopos[1]) / (unit.pos[0] - unit.gotopos[0]))), move_speed/2), (-abs((unit.pos[1] - unit.gotopos[1]))/(unit.pos[1] - unit.gotopos[1])) * min(abs((move_speed / (1 + (unit.pos[0] - unit.gotopos[0]) / (unit.pos[1] - unit.gotopos[1])))), move_speed/2))
+            elif not(unit.gotopos[0] < unit.pos[0] + 5 and unit.gotopos[0] > unit.pos[0] - 5 and unit.gotopos[1] < unit.pos[1] + 5 and unit.gotopos[1] > unit.pos[1] - 5) and not unit.selected:
+                unit.move(2,1)
+        
 
 
 
@@ -116,8 +114,9 @@ def select(player, basecolor, light_color):
 
 
 
-p1 = Player(0, "alive", 0)
-p2 = Player(1, "alive", 0)
+
+p1 = Player(0, "alive", 0, False)
+p2 = Player(1, "alive", 0, False)
 
 
 make_units(10, BLUE, 15, p1.index, 10, 10, 100, 600)
@@ -147,15 +146,26 @@ while running: # Hovedspil-loop
 
             #Player 1
             if event.key == pygame.K_q:
-                cursers[p1.index].selecting = True
-                cursers[p1.index].points[0] = cursers[p1.index].posx
-                cursers[p1.index].points[1] = cursers[p1.index].posy
-                print(cursers[p1.index].points[0],cursers[p1.index].points[1])
+                if not p1.repositioning:
+                    cursers[p1.index].selecting = True
+                    cursers[p1.index].points[0] = cursers[p1.index].posx
+                    cursers[p1.index].points[1] = cursers[p1.index].posy
+                
+            if event.key == pygame.K_e:
+                p1.repositioning = not p1.repositioning
 
-            
+
+
             #Player 2
             if event.key == pygame.K_y:
-                pass
+                if not p2.repositioning:
+                    cursers[p2.index].selecting = True
+                    cursers[p2.index].points[0] = cursers[p2.index].posx
+                    cursers[p2.index].points[1] = cursers[p2.index].posy
+            
+            if event.key == pygame.K_i:
+                p2.repositioning = not p2.repositioning
+
 
     
         if event.type == pygame.KEYUP:
@@ -165,13 +175,15 @@ while running: # Hovedspil-loop
                 cursers[p1.index].selecting = False
                 cursers[p1.index].points[2] = cursers[p1.index].posx
                 cursers[p1.index].points[3] = cursers[p1.index].posy
-                print(cursers[p1.index].points[2],cursers[p1.index].points[3])
                 select(0, BLUE, LIGHT_BLUE)
             
 
             #Player 2
             if event.key == pygame.K_y:
-                pass
+                cursers[p2.index].selecting = False
+                cursers[p2.index].points[2] = cursers[p2.index].posx
+                cursers[p2.index].points[3] = cursers[p2.index].posy
+                select(1, GREEN, LIGHT_GREEN)
 
 
 
@@ -181,40 +193,92 @@ while running: # Hovedspil-loop
     keys = pygame.key.get_pressed()
     
 
-    
-
     #player 1
     if keys[pygame.K_w]:
-        cursers[p1.index].move(0, -2)
+        if not p1.repositioning:
+            cursers[p1.index].move(0, -2)
 
+        if p1.repositioning:
+            for i in units[p1.index]:
+                if i.selected:
+                    i.gotopos[1] += -2
+    
+    
     if keys[pygame.K_s]:
-        cursers[p1.index].move(0, 2)
+        if not p1.repositioning:
+            cursers[p1.index].move(0, 2)
+    
+        if p1.repositioning:
+            for i in units[p1.index]:
+                if i.selected:
+                    i.gotopos[1] += 2
+
+
     
     if keys[pygame.K_a]:
-        cursers[p1.index].move(-2, 0)
+        if not p1.repositioning:
+            cursers[p1.index].move(-2, 0)
+    
+        if p1.repositioning:
+            for i in units[p1.index]:
+                if i.selected:
+                    i.gotopos[0] += -2
+
+    
     
     if keys[pygame.K_d]:
-        cursers[p1.index].move(2, 0)
+        if not p1.repositioning:
+            cursers[p1.index].move(2, 0)
     
-
-
-    if keys[pygame.K_e]:
-        pass
+        if p1.repositioning:
+            for i in units[p1.index]:
+                if i.selected:
+                    i.gotopos[0] += 2  
 
 
 
     #player 2
     if keys[pygame.K_u]:
-        cursers[p2.index].move(0, -2)
+        if not p2.repositioning:
+            cursers[p2.index].move(0, -2)
+
+        if p2.repositioning:
+            for i in units[p2.index]:
+                if i.selected:
+                    i.gotopos[1] += -2
+
+
 
     if keys[pygame.K_j]:
-        cursers[p2.index].move(0, 2)
-    
+        if not p2.repositioning:
+            cursers[p2.index].move(0, 2)
+
+        if p2.repositioning:
+            for i in units[p2.index]:
+                if i.selected:
+                    i.gotopos[1] += 2
+
+
+
     if keys[pygame.K_h]:
-        cursers[p2.index].move(-2, 0)
-    
+        if not p2.repositioning:
+            cursers[p2.index].move(-2, 0)
+
+        if p2.repositioning:
+            for i in units[p2.index]:
+                if i.selected:
+                    i.gotopos[0] += -2
+
+
+
     if keys[pygame.K_k]:
-        cursers[p2.index].move(2, 0)
+        if not p2.repositioning:
+            cursers[p2.index].move(2, 0)
+
+        if p2.repositioning:
+            for i in units[p2.index]:
+                if i.selected:
+                    i.gotopos[0] += 2  
 
 
 
@@ -227,18 +291,19 @@ while running: # Hovedspil-loop
 
 
 
-
-
-
-
+    globalmove()
 
     #Rendering
     for p in units:
         for unit in p:
             unit.img()
+            if not(unit.gotopos[0] < unit.pos[0] + 5 and unit.gotopos[0] > unit.pos[0] - 5 and unit.gotopos[1] < unit.pos[1] + 5 and unit.gotopos[1] > unit.pos[1] - 5):
+                pygame.draw.line(screen,(0,0,0),unit.pos, unit.gotopos, 3)
 
     for i in cursers:
         pygame.draw.circle(screen, i.color , (i.posx, i.posy), 5)
+
+
 
 
     # Opdater skærmen
