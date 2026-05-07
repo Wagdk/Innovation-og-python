@@ -10,7 +10,7 @@ pygame.init()
  
  
  
-move_speed = 2
+move_speed = 0.5
 WIDTH, HEIGHT = 1200, 600 # Bredde og højde på pygamevinduet (screen)
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Stilaris")
