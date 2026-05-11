@@ -28,7 +28,7 @@ LIGHT_RED = (255, 0, 0)
 ORANGE = (255, 165, 0)
  
  
- 
+
 def start_screen():
     screen.fill((0,0,0))
  
