@@ -20,8 +20,8 @@ running = True
 current_screen = 'menu'
 
 #loop and event handling
-running = True
-while running:
+runningmenu = True
+while runningmenu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
