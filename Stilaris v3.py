@@ -152,9 +152,9 @@ p3 = Player(2, "alive", 0, False)
  
  
  
-make_units(1, BLUE, 15, p1.index, 10, 10, 100, 600)
-make_units(1, GREEN, 15, p2.index, 600, 10, 690, 600)
-make_units(1, RED, 15, p3.index, 1000, 10, 1100, 600)
+make_units(15, BLUE, 15, p1.index, 10, 10, 100, 600)
+make_units(15, GREEN, 15, p2.index, 600, 10, 690, 600)
+make_units(15, RED, 15, p3.index, 1000, 10, 1100, 600)
  
  
 cursers = [
