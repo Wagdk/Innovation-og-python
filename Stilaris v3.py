@@ -73,20 +73,15 @@ class Ball:
  
     def collision(self):
         for group in units:
-            # FIX 1: Spring tomme grupper over (undgår IndexError på group[0])
             if not group:
                 continue
             if group[0].player != self.player:
                 for unit in group:
-                    # FIX 2: Brug rigtig cirkel-kollision med afstand i stedet
-                    # for den umulige box-check
                     dx = unit.pos[0] - self.pos[0]
                     dy = unit.pos[1] - self.pos[1]
                     distance = math.sqrt(dx**2 + dy**2)
                     if distance < self.radius + unit.radius:
                         return True
-        # FIX 2 fortsat: Return False EFTER alle grupper er tjekket,
-        # ikke inde i inner-loopet
         return False
     
  
