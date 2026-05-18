@@ -184,6 +184,8 @@ while runningmenu:
             if event.type == pygame.QUIT:
                 runningmenu = False
                 runninggame = False
+                pygame.quit()
+                sys.exit()
     
         #menu screen
         if current_screen == 'menu':
@@ -219,7 +221,10 @@ while runningmenu:
                 runninggame = True
                 runningmenu = False
             if quit_button.draw(surface=screen):
-                running = False
+                runninggame = False
+                runningmenu = False
+                pygame.quit()
+                sys.exit()
             if settings_button.draw(surface=screen):
                 current_screen = 'settings'
             #looping around
@@ -571,6 +576,6 @@ while runninggame: # Hovedspil-loop
  
 
 
-if not runningmenu and not runninggame:
+if runningmenu and runninggame == False:
     pygame.quit()
     sys.exit()
